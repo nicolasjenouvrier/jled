@@ -24,6 +24,7 @@
 
 #include <zephyr/device.h>
 #include <zephyr/drivers/pwm.h>
+#include <zephyr/kernel.h>
 
 namespace jled {
 
@@ -31,7 +32,9 @@ class ZephyrHal {
  public:
     using PinType = struct pwm_dt_spec;
 
-    explicit ZephyrHal(PinType pin) noexcept : pin_(pin) {}
+    explicit ZephyrHal(PinType pin) noexcept : pin_(pin) {
+        __ASSERT(pwm_is_ready_dt(&pin), "Device %s is not ready", pin.dev->name);
+    }
 
     void analogWrite(uint8_t val) const {
         ::pwm_set_pulse_dt(&pin_,
